@@ -5,61 +5,114 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
-    public Camera playerCamera;
-    public float walkSpeed = 6f;
-    public float runSpeed = 12f;
-    public float jumpPower = 7f;
-    public float gravity = 10f;
-    public float lookSpeed = 2f;
-    public float lookXLimit = 45f;
-    public float defaultHeight = 2f;
-    public float crouchHeight = 1f;
-    public float crouchSpeed = 3f;
+    CharacterController characterController;
+    Vector3 tempMovement;
+    public float gravity = -9.81f;
+    public float groundedGravity = -2f;
+    float gravityTracker = 0;
+    float moveSpeed = 5f;
 
-    private Vector3 moveDirection = Vector3.zero;
-    private float rotationX = 0;
-    private CharacterController characterController;
+    public AudioClip winClip;
+    AudioSource audioSource;
+    bool hasWon = false;
+    public AudioClip treasureClip;
 
-    private bool canMove = true;
+    int points = 0;
+
+    public CameraFollow CameraFollow;
+    Vector3 camForward;
+    Vector3 camRight;
 
     void Start()
     {
         characterController = GetComponent<CharacterController>();
+        audioSource = GetComponent<AudioSource>();
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+
     }
 
     void Update()
     {
-        Vector3 forward = transform.TransformDirection(Vector3.forward);
-        Vector3 right = transform.TransformDirection(Vector3.right);
+        float h = Input.GetAxisRaw("Horizontal");
+        float v = Input.GetAxisRaw("Vertical");
+        camForward = Camera.main.transform.forward;
+        camRight = Camera.main.transform.right;
+        camForward.y = 0;
+        camRight.y = 0;
 
-        // Press Left Shift to run
-        bool isRunning = Input.GetKey(KeyCode.LeftShift);
-        float curSpeedX = canMove ? (isRunning ? runSpeed : walkSpeed) * Input.GetAxis("Vertical") : 0;
-        float curSpeedY = canMove ? (isRunning ? runSpeed : walkSpeed) * Input.GetAxis("Horizontal") : 0;
-        float movementDirectionY = moveDirection.y;
-        moveDirection = (forward * curSpeedX) + (right * curSpeedY);
+        Vector3 moveDir = (camForward * v + camRight * h).normalized;
 
-        if (Input.GetButton("Jump") && canMove && characterController.isGrounded)
-        {
-            moveDirection.y = jumpPower;
-        }
-        else
-        {
-            moveDirection.y = movementDirectionY;
-        }
+        
 
-        if (!characterController.isGrounded)
+        Vector3 finalMove = moveDir * moveSpeed + new Vector3(0, gravityTracker, 0);
+        characterController.Move(finalMove * Time.deltaTime);
+
+        if (camForward.magnitude > 0.1f)
         {
-            moveDirection.y -= gravity * Time.deltaTime;
+            transform.rotation = Quaternion.LookRotation(camForward);
         }
 
-        characterController.Move(moveDirection * Time.deltaTime);
 
-        Vector3 inputDir = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
-        if (inputDir.sqrMagnitude > 0.01f)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(inputDir);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
-        }
     }
+
+    // void OnControllerColliderHit(ControllerColliderHit hit)
+    // {
+    //     if (hit.gameObject.CompareTag("treasure"))
+    //     {
+    //         Collider treasureCollider = hit.gameObject.GetComponent<Collider>();
+    //         if (treasureCollider != null && treasureCollider.enabled)
+    //         {
+    //             treasureCollider.enabled = false;
+    //             Destroy(hit.gameObject);
+    //             points++;
+    //             Debug.Log(points);
+
+    //             if (points < 3)
+    //             {
+    //                 audioSource.PlayOneShot(treasureClip);
+    //             }
+
+    //         }
+    //     }
+
+    //     if (points == 3 && !hasWon)
+    //     {
+    //         hasWon = true;
+    //         StartCoroutine(DelayReset());
+    //     }
+
+    // }
+
+    public void ResetGame()
+    {
+        // SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    IEnumerator DelayReset()
+    {
+        audioSource.PlayOneShot(winClip);
+        yield return new WaitForSeconds(3f);
+        ResetGame();
+    }
+
+
+
+    public void SimulateGravity()
+    {
+        if (characterController.isGrounded)
+        {
+            gravityTracker = -1;
+        }
+
+        gravityTracker += gravity * Time.deltaTime;
+
+        characterController.Move(new Vector3(0, gravityTracker, 0) * Time.deltaTime);
+    }
+
+    public void Move(Vector3 unitMovement)
+    {
+        GetComponent<CharacterController>().Move(unitMovement * 5f * Time.deltaTime);
+    }
+
 }
