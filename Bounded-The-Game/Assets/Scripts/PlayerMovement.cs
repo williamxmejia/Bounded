@@ -11,6 +11,7 @@ public class PlayerMovement : MonoBehaviour
     public float groundedGravity = -2f;
     float gravityTracker = 0;
     float moveSpeed = 5f;
+    float jumpForce = 10f;
 
     public AudioClip winClip;
     AudioSource audioSource;
@@ -27,8 +28,8 @@ public class PlayerMovement : MonoBehaviour
     {
         characterController = GetComponent<CharacterController>();
         audioSource = GetComponent<AudioSource>();
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
+        // Cursor.visible = false;
+        // Cursor.lockState = CursorLockMode.Locked;
 
     }
 
@@ -43,7 +44,7 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 moveDir = (camForward * v + camRight * h).normalized;
 
-        
+
 
         Vector3 finalMove = moveDir * moveSpeed + new Vector3(0, gravityTracker, 0);
         characterController.Move(finalMove * Time.deltaTime);
@@ -51,6 +52,22 @@ public class PlayerMovement : MonoBehaviour
         if (camForward.magnitude > 0.1f)
         {
             transform.rotation = Quaternion.LookRotation(camForward);
+        }
+
+        if (characterController.isGrounded)
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                gravityTracker = jumpForce;
+            }
+            else
+            {
+                gravityTracker = groundedGravity;
+            }
+        }
+        else
+        {
+            gravityTracker += gravity * Time.deltaTime;
         }
 
 
