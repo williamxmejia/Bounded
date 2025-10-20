@@ -11,7 +11,7 @@ public class MainMenuManager : MonoBehaviour
 
     public GameObject container;
 
-    public enum MainMenuButtons { play, options, quit, resume };
+    public enum MainMenuButtons { play, options, quit, resume, start };
 
     public void Update()
     {
@@ -51,6 +51,9 @@ public class MainMenuManager : MonoBehaviour
             case MainMenuButtons.resume:
                 ResumeClicked();
                 break;
+            case MainMenuButtons.start:
+                GoToStartMenu();
+                break;
             default:
                 Debug.Log("Button not implemented");
                 break;
@@ -75,7 +78,13 @@ public class MainMenuManager : MonoBehaviour
         container.SetActive(false);
         Time.timeScale = 1;
         cameraController.enabled = true;
-        
+
+    }
+    
+    public void GoToStartMenu()
+    {
+        SceneManager.LoadScene(_sceneToLoadAfterClickingPlay);
+        Time.timeScale = 1;
     }
 
     public void QuitGame()
