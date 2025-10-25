@@ -31,15 +31,16 @@ public class CameraFollow : MonoBehaviour
         float mouseY = Input.GetAxis("Mouse Y") * speed;
 
         yaw += mouseX;
-        // pitch -= mouseY;
+        pitch -= mouseY;
         pitch = Mathf.Clamp(pitch, -40f, 80f);
 
-        // Calculate the new rotation
         Quaternion rotation = Quaternion.Euler(pitch, yaw, 0);
 
-        // Calculate the new position
         Vector3 offset = rotation * new Vector3(0, 0, -distance) + new Vector3(0, height, 0);
-        transform.position = cameraTarget.position + offset;
+        Vector3 newPosition = cameraTarget.position + offset;
+
+        newPosition.y = Mathf.Max(newPosition.y, 0.1f);
+        transform.position = newPosition;
 
         // Always look at the target
         transform.LookAt(cameraTarget);

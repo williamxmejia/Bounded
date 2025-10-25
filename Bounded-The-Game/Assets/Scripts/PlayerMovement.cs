@@ -73,33 +73,33 @@ public class PlayerMovement : MonoBehaviour
 
     }
 
-    // void OnControllerColliderHit(ControllerColliderHit hit)
-    // {
-    //     if (hit.gameObject.CompareTag("treasure"))
-    //     {
-    //         Collider treasureCollider = hit.gameObject.GetComponent<Collider>();
-    //         if (treasureCollider != null && treasureCollider.enabled)
-    //         {
-    //             treasureCollider.enabled = false;
-    //             Destroy(hit.gameObject);
-    //             points++;
-    //             Debug.Log(points);
+    void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (hit.gameObject.CompareTag("Objective"))
+        {
+            Collider treasureCollider = hit.gameObject.GetComponent<Collider>();
+            if (treasureCollider != null && treasureCollider.enabled)
+            {
+                treasureCollider.enabled = false;
+                Destroy(hit.gameObject);
+                points++;
+                Debug.Log(points);
 
-    //             if (points < 3)
-    //             {
-    //                 audioSource.PlayOneShot(treasureClip);
-    //             }
+                // if (points < 3)
+                // {
+                //     audioSource.PlayOneShot(treasureClip);
+                // }
 
-    //         }
-    //     }
+            }
+        }
 
-    //     if (points == 3 && !hasWon)
-    //     {
-    //         hasWon = true;
-    //         StartCoroutine(DelayReset());
-    //     }
+        // if (points == 3 && !hasWon)
+        // {
+        //     hasWon = true;
+        //     StartCoroutine(DelayReset());
+        // }
 
-    // }
+    }
 
     public void ResetGame()
     {
