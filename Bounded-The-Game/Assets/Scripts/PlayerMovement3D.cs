@@ -4,7 +4,7 @@ public class PlayerMovement3D : MonoBehaviour
 {
     [Header("Movement Settings")]
     public float moveSpeed = 6f;
-    public float jumpHeight = 2f;
+    public float jumpHeight = 1f;
     public float gravity = -19.62f;
     public float groundDistance = 0.4f;
     
