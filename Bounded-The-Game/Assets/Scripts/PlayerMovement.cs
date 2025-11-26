@@ -10,13 +10,14 @@ public class PlayerMovement : MonoBehaviour
     public float gravity = -9.81f;
     public float groundedGravity = -2f;
     float gravityTracker = 0;
-    float moveSpeed = 5f;
-    float jumpForce = 10f;
+    float moveSpeed = 3f;
+    float jumpForce = 0f;
 
     public AudioClip winClip;
     AudioSource audioSource;
     bool hasWon = false;
     public AudioClip treasureClip;
+
 
     int points = 0;
 
@@ -24,14 +25,22 @@ public class PlayerMovement : MonoBehaviour
     Vector3 camForward;
     Vector3 camRight;
 
+    private Animator animator;
+
     void Start()
     {
+        animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
         audioSource = GetComponent<AudioSource>();
         // Cursor.visible = false;
         // Cursor.lockState = CursorLockMode.Locked;
 
     }
+
+    public bool IsMovingBackward { get; private set; }
+    public bool IsMovingForward { get; private set; } 
+    public bool IsMovingLeft { get; private set; }
+    public bool IsMovingRight { get; private set; }
 
     void Update()
     {
@@ -44,7 +53,48 @@ public class PlayerMovement : MonoBehaviour
 
         Vector3 moveDir = (camForward * v + camRight * h).normalized;
 
+        IsMovingForward = (v > 0.01f);
+        IsMovingBackward = (v < -0.01f);
+        IsMovingLeft = (h < -0.01f);
+        IsMovingRight = (h > 0.01f);
 
+        if (IsMovingForward)
+        {
+            animator.SetBool("isMoving", true);
+        }
+        else
+        {
+            animator.SetBool("isMoving", false);
+        }
+
+        if (IsMovingBackward)
+        {
+            animator.SetBool("isMovingBackward", true);
+        }
+        else
+        {
+            animator.SetBool("isMovingBackward", false);
+            
+        }
+
+        if (IsMovingLeft)
+        {
+            animator.SetBool("isMovingLeft", true);
+
+        }
+        else
+        {
+            animator.SetBool("isMovingLeft", false);
+        }
+
+        if (IsMovingRight)
+        {
+            animator.SetBool("isMovingRight", true);
+        }
+        else
+        {
+            animator.SetBool("isMovingRight", false);
+        }
 
         Vector3 finalMove = moveDir * moveSpeed + new Vector3(0, gravityTracker, 0);
         characterController.Move(finalMove * Time.deltaTime);
@@ -58,10 +108,12 @@ public class PlayerMovement : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
+                animator.SetBool("isJumping", true);
                 gravityTracker = jumpForce;
             }
             else
             {
+                animator.SetBool("isJumping", false);
                 gravityTracker = groundedGravity;
             }
         }
