@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Enemies : MonoBehaviour
 {
@@ -108,5 +109,21 @@ public class Enemies : MonoBehaviour
     {
         Debug.Log("Enemy died: " + gameObject.name);
         Destroy(gameObject);
+    }
+
+    void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (hit.gameObject.CompareTag(playerTag))
+        {
+            SceneManager.LoadScene("MainMenu");
+        }
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag(playerTag))
+        {
+            SceneManager.LoadScene("MainMenu");
+        }
     }
 }
