@@ -17,9 +17,16 @@ public class MainMenuManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            container.SetActive(true);
-            Time.timeScale = 0;
-            cameraController.enabled = false;
+            if (Time.timeScale == 0)
+            {
+                ResumeClicked();
+            }
+            else
+            {
+                container.SetActive(true);
+                Time.timeScale = 0;
+                cameraController.enabled = false;
+            }
         }
     }
     public void Awake()

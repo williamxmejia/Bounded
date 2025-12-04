@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
@@ -11,13 +13,15 @@ public class PlayerMovement : MonoBehaviour
     public float groundedGravity = -2f;
     float gravityTracker = 0;
     float moveSpeed = 3f;
-    float jumpForce = 0f;
+    float jumpForce = 10f;
 
     public AudioClip winClip;
+    public AudioClip fireballClip;
+    public GameObject fireballPrefab;
+    public float fireballSpeed = 10f;
     AudioSource audioSource;
     bool hasWon = false;
     public AudioClip treasureClip;
-
 
     int points = 0;
 
@@ -27,14 +31,19 @@ public class PlayerMovement : MonoBehaviour
 
     private Animator animator;
 
+    public Texture2D cursorTexture;
+    public Vector2 cursorHotspot = Vector2.zero;
+
     void Start()
     {
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
         audioSource = GetComponent<AudioSource>();
-        // Cursor.visible = false;
-        // Cursor.lockState = CursorLockMode.Locked;
 
+        if (cursorTexture != null)
+        {
+            Cursor.SetCursor(cursorTexture, cursorHotspot, CursorMode.Auto);
+        }
     }
 
     public bool IsMovingBackward { get; private set; }
@@ -45,6 +54,14 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         float h = Input.GetAxisRaw("Horizontal");
+        if (Input.GetMouseButtonDown(0))
+        {
+            if ((MainMenuManager._ == null || !MainMenuManager._.container.activeSelf)
+                && !(EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()))
+            {
+                ShootFireball();
+            }
+        }
         float v = Input.GetAxisRaw("Vertical");
         camForward = Camera.main.transform.forward;
         camRight = Camera.main.transform.right;
@@ -136,13 +153,17 @@ public class PlayerMovement : MonoBehaviour
                 Destroy(hit.gameObject);
                 points++;
                 Debug.Log(points);
-
                 // if (points < 3)
                 // {
                 //     audioSource.PlayOneShot(treasureClip);
                 // }
-
             }
+        }
+
+        if (hit.gameObject.CompareTag("Exit"))
+        {
+            Debug.Log("Player collided with Exit object");
+            SceneManager.LoadScene("MainMenu");
         }
 
         // if (points == 3 && !hasWon)
@@ -150,7 +171,6 @@ public class PlayerMovement : MonoBehaviour
         //     hasWon = true;
         //     StartCoroutine(DelayReset());
         // }
-
     }
 
     public void ResetGame()
@@ -182,6 +202,24 @@ public class PlayerMovement : MonoBehaviour
     public void Move(Vector3 unitMovement)
     {
         GetComponent<CharacterController>().Move(unitMovement * 5f * Time.deltaTime);
+    }
+
+    void ShootFireball()
+    {
+        if (fireballPrefab == null) return;
+        Vector3 spawnPos = transform.position + transform.forward * 1.5f + Vector3.up * 1f;
+        GameObject fireball = Instantiate(fireballPrefab, spawnPos, Quaternion.identity);
+        FireballMovement movement = fireball.GetComponent<FireballMovement>();
+        if (movement != null)
+        {
+            movement.speed = fireballSpeed;
+            movement.SetDirection(transform.forward);
+        }
+
+        if (fireballClip != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(fireballClip);
+        }
     }
 
 }

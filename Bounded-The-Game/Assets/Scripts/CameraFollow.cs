@@ -42,7 +42,6 @@ public class CameraFollow : MonoBehaviour
         newPosition.y = Mathf.Max(newPosition.y, 0.1f);
         transform.position = newPosition;
 
-        // Always look at the target
         transform.LookAt(cameraTarget);
 
     }

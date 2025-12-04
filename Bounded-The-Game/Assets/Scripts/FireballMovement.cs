@@ -17,12 +17,26 @@ public class FireballMovement : MonoBehaviour
         {
             direction = transform.forward;
         }
-        
+
         Destroy(gameObject, lifetime);
     }
 
     void Update()
     {
         transform.Translate(direction * speed * Time.deltaTime, Space.World);
+    }
+    public string enemyTag = "Enemy";
+
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.GetComponent<Enemies>() != null)
+        {
+
+            Enemies enemy = other.GetComponent<Enemies>();
+
+            Destroy(other.gameObject);
+
+            Destroy(gameObject);
+        }
     }
 }

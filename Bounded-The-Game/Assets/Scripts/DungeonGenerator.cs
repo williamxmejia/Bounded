@@ -5,6 +5,7 @@ using UnityEngine;
 public class DungeonGenerator : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public GameObject lastRoomObject;
 
     public class Cell
     {
@@ -16,6 +17,8 @@ public class DungeonGenerator : MonoBehaviour
     public int startPos = 0;
     public GameObject room;
     public Vector2 offset;
+
+
 
     List<Cell> board;
 
@@ -32,6 +35,8 @@ public class DungeonGenerator : MonoBehaviour
 
     void GenerateDungeon()
     {
+        Vector3 lastRoomPos = Vector3.zero;
+        bool foundLastRoom = false;
         for (int i = 0; i < size.x; i++)
         {
             for (int j = 0; j < size.y; j++)
@@ -42,10 +47,20 @@ public class DungeonGenerator : MonoBehaviour
                     var newRoom = Instantiate(room, new Vector3(i * offset.x, 0, -j * offset.y), Quaternion.identity, transform).GetComponent<RoomBehaviour>();
                     newRoom.UpdateRoom(currentCell.status);
                     newRoom.name += " " + i + "-" + j;
+
+                    if (!foundLastRoom || (i + j * size.x) > (lastRoomPos.x + lastRoomPos.z * size.x))
+                    {
+                        lastRoomPos = new Vector3(i * offset.x, 1, -j * offset.y);
+                        foundLastRoom = true;
+                    }
                 }
-
-
             }
+        }
+
+        if (lastRoomObject != null && foundLastRoom)
+        {
+            lastRoomPos.y = 1;
+            Instantiate(lastRoomObject, lastRoomPos, Quaternion.identity, transform);
         }
     }
 

@@ -3,7 +3,7 @@ using UnityEngine;
 public class RoomBehaviour : MonoBehaviour
 {
 
-    public GameObject[] walls; // up down right left
+    public GameObject[] walls;
     public GameObject[] doors;
     
     public void UpdateRoom(bool [] status)

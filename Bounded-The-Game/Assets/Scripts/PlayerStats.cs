@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
 public class PlayerStats : MonoBehaviour
@@ -25,15 +26,37 @@ public class PlayerStats : MonoBehaviour
         currentAmmo = maxAmmo;
     }
 
+    [Header("Enemies")]
+    public Enemies[] enemies;
+
     void Update()
     {
-        // if (Input.GetMouseButton(0))
-        // {
-        //     if (UseAmmo())
-        //     {
-        //         ShootFireball();
-        //     }
-        // }
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (!(EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()))
+            {
+                if (UseAmmo())
+                {
+                    ShootFireball();
+                }
+                Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2, 0));
+                RaycastHit hit;
+                if (Physics.Raycast(ray, out hit, 100f))
+                {
+                    Enemies hitEnemy = hit.collider.GetComponent<Enemies>();
+                    if (hitEnemy != null && enemies != null)
+                    {
+                        foreach (Enemies enemy in enemies)
+                        {
+                            if (enemy == hitEnemy)
+                            {
+                                enemy.TakeDamage(10f);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     void ShootFireball()
@@ -45,7 +68,6 @@ public class PlayerStats : MonoBehaviour
 
             GameObject newFireball = Instantiate(fireBall, spawnPosition, spawnRotation);
 
-            // Set the speed on the fireball's movement script
             FireballMovement movement = newFireball.GetComponent<FireballMovement>();
             if (movement != null)
             {
